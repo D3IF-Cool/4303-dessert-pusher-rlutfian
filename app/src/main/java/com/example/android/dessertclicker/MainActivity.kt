@@ -28,14 +28,19 @@ import androidx.databinding.DataBindingUtil
 import com.example.android.dessertclicker.databinding.ActivityMainBinding
 import timber.log.Timber
 
+//Menambahkan Key
+const val KEY_REVENUE = "revenue_key"
+const val KEY_DESSERT_SOLD = "dessert_sold_key"
+
 class MainActivity : AppCompatActivity() {
+
 
     private var revenue = 0
     private var dessertsSold = 0
 
     // Contains all the views
-    private lateinit var binding: ActivityMainBinding
     private lateinit var dessertTimer: DessertTimer
+    private lateinit var binding: ActivityMainBinding
 
     /** Dessert Data **/
 
@@ -66,8 +71,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("MainActivity", "onCreate Called")
 
+        if (savedInstanceState != null) {
+            revenue = savedInstanceState.getInt(KEY_REVENUE, 0)
+            dessertsSold = savedInstanceState.getInt(KEY_DESSERT_SOLD, 0)
+            showCurrentDessert()
+        }
+
+        // Log.i("MainActivity", "onCreate Called")
+        Timber.i("onCreate called")
         // Use Data Binding to get reference to the views
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
@@ -75,20 +87,21 @@ class MainActivity : AppCompatActivity() {
             onDessertClicked()
         }
         dessertTimer = DessertTimer(this.lifecycle)
-
         // Set the TextViews to the right values
         binding.revenue = revenue
         binding.amountSold = dessertsSold
-
         // Make sure the correct dessert is showing
         binding.dessertButton.setImageResource(currentDessert.imageId)
     }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_REVENUE, revenue)
+        outState.putInt(KEY_DESSERT_SOLD, dessertsSold)
+    }
     override fun onStart() {
         super.onStart()
-        Log.i("MainActivity", "onStart Called")
+        // Log.i("MainActivity", "onStart Called")
         Timber.i("onCreate called")
-//        dessertTimer.startTimer()
-
     }
     override fun onResume() {
         super.onResume()
@@ -97,10 +110,12 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         Timber.i("onPause Called")
-    }override fun onStop() {
+    }
+    override fun onStop() {
         super.onStop()
         Timber.i("onStop Called")
-//        dessertTimer.stopTimer()
+
+
     }
     override fun onDestroy() {
         super.onDestroy()
@@ -110,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         super.onRestart()
         Timber.i("onRestart Called")
     }
+
     /**
      * Updates the score when the dessert is clicked. Possibly shows a new dessert.
      */
